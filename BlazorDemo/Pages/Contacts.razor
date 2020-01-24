@@ -1,0 +1,104 @@
+﻿@page "/contacts"
+<h3>Contacts</h3>
+
+<input type="text" id="myInput" @bind="@SearchQuery" @bind:event="oninput" placeholder="Search for contacts..">
+
+<table id="myTable">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Country</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var contact in contacts)
+        {
+            <tr>
+                <td>@contact.Name</td>
+                <td>@contact.Country</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+
+    public class Contact
+    {
+        public string Name { get; set; }
+        public string Country { get; set; }
+    }
+
+    public class ContactService
+    {
+        public List<Contact> contacts;
+
+        public ContactService()
+        {
+            contacts = new List<Contact>()
+{
+            new Contact
+            {
+                Name = "Alfreds Futterkiste",
+                Country = "Germany",
+            },
+            new Contact
+            {
+                Name = "Berglunds snabbkop",
+                Country = "Sweden",
+            },
+            new Contact
+            {
+                Name = "Island Trading",
+                Country = "UK",
+            },
+            new Contact
+            {
+                Name = "Koniglich Essen",
+                Country = "Germany",
+            }
+        };
+        }
+
+    }
+
+
+    public ContactService contactService { get; set; }
+
+    private string _searchQuery;
+
+    public string SearchQuery
+    {
+        get => _searchQuery; set
+        {
+            _searchQuery = value;
+            if (!string.IsNullOrWhiteSpace(_searchQuery))
+            {
+                Search(_searchQuery);
+            }
+            else
+            {
+                GetContacts();
+            }
+
+        }
+    }
+
+    private List<Contact> contacts;
+
+    protected override async Task OnInitializedAsync()
+    {
+        contactService = new ContactService();
+        GetContacts();
+    }
+
+    public void GetContacts()
+    {
+        contacts = contactService.contacts;
+    }
+
+    public void Search(string input)
+    {
+        contacts = contactService.contacts.Where(c => c.Name.StartsWith(input)).ToList();
+    }
+}
