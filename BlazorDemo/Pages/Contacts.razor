@@ -1,8 +1,11 @@
 ﻿@page "/contacts"
 
 <h3>Contacts</h3>
+<div>
+    <span class="oi oi-magnifying-glass"></span>
+    <input type="text" id="myInput" class="search" @bind="@SearchQuery" @bind:event="oninput" placeholder="Search for contacts..">
+</div>
 
-<input type="text" id="myInput" @bind="@SearchQuery" @bind:event="oninput" placeholder="Search for contacts..">
 
 <table id="myTable">
     <thead>
@@ -65,6 +68,8 @@
 
     bool isSearching;
 
+    bool IsSearching => !(currentSearchCts == null);
+
     CancellationTokenSource currentSearchCts;
 
     public ContactService contactService { get; set; }
@@ -76,14 +81,8 @@
         get => _searchQuery; set
         {
             _searchQuery = value;
-            if (!string.IsNullOrWhiteSpace(_searchQuery))
-            {
-                _ = SearchAsync(_searchQuery);
-            }
-            else
-            {
-                GetContacts();
-            }
+
+            _ = SearchAsync(_searchQuery);
 
         }
     }
@@ -101,6 +100,7 @@
 
     public void GetContacts()
     {
+        Console.WriteLine("GetContacts is Called");
         contacts = contactService.contacts;
     }
 
@@ -109,19 +109,39 @@
         try
         {
             currentSearchCts?.Cancel();
-            currentSearchCts = new CancellationTokenSource();
-            var searchToken = currentSearchCts.Token;
-            await Task.Delay(500);
-            if (!searchToken.IsCancellationRequested)
-            {
-                //todo fix bug
-                contacts = contactService.contacts.Where(c => c.Name.StartsWith(input)).ToList();
-            }
-        }
-        catch (Exception ex)
-        {
 
-            throw;
+            currentSearchCts = new CancellationTokenSource();
+
+            var searchToken = currentSearchCts.Token;
+
+            await Task.Factory.StartNew(async(st)=>{
+
+                await Task.Delay(500);
+
+                var ct = (CancellationToken)st;
+
+                ct.ThrowIfCancellationRequested();
+
+                Console.WriteLine($"Search is Called with {input}");
+
+                if (string.IsNullOrWhiteSpace(input))
+                {
+                    GetContacts();
+                }
+                else
+                {
+                    contacts = contactService.contacts.Where(c => c.Name.StartsWith(input)).ToList();
+                }
+
+                currentSearchCts = null;
+
+            },searchToken).Unwrap();
+
+            StateHasChanged();
+        }
+        catch (OperationCanceledException ex)
+        {
+            Console.WriteLine($"Search is Cancelled {input}");
         }
 
 
