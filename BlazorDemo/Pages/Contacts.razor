@@ -1,4 +1,5 @@
 ﻿@page "/contacts"
+
 <h3>Contacts</h3>
 
 <input type="text" id="myInput" @bind="@SearchQuery" @bind:event="oninput" placeholder="Search for contacts..">
@@ -62,6 +63,9 @@
 
     }
 
+    bool isSearching;
+
+    CancellationTokenSource currentSearchCts;
 
     public ContactService contactService { get; set; }
 
@@ -74,7 +78,7 @@
             _searchQuery = value;
             if (!string.IsNullOrWhiteSpace(_searchQuery))
             {
-                Search(_searchQuery);
+                _ = SearchAsync(_searchQuery);
             }
             else
             {
@@ -88,8 +92,11 @@
 
     protected override async Task OnInitializedAsync()
     {
-        contactService = new ContactService();
-        GetContacts();
+        await Task.Run(() =>
+        {
+            contactService = new ContactService();
+            GetContacts();
+        });
     }
 
     public void GetContacts()
@@ -97,8 +104,26 @@
         contacts = contactService.contacts;
     }
 
-    public void Search(string input)
+    public async Task SearchAsync(string input)
     {
-        contacts = contactService.contacts.Where(c => c.Name.StartsWith(input)).ToList();
+        try
+        {
+            currentSearchCts?.Cancel();
+            currentSearchCts = new CancellationTokenSource();
+            var searchToken = currentSearchCts.Token;
+            await Task.Delay(500);
+            if (!searchToken.IsCancellationRequested)
+            {
+                //todo fix bug
+                contacts = contactService.contacts.Where(c => c.Name.StartsWith(input)).ToList();
+            }
+        }
+        catch (Exception ex)
+        {
+
+            throw;
+        }
+
+
     }
 }
