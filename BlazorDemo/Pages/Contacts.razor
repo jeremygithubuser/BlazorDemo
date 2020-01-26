@@ -1,4 +1,6 @@
 ﻿@page "/contacts"
+@inject IContactService contactService
+@inject NavigationManager navigationManager
 
 <h3>Contacts</h3>
 <div>
@@ -7,11 +9,13 @@
 </div>
 
 
-<table id="myTable">
+<table id="myTable" class="table table-striped">
     <thead>
         <tr>
             <th>Name</th>
             <th>Country</th>
+            <th>Edit</th>
+            <th>Remove</th>
         </tr>
     </thead>
     <tbody>
@@ -20,6 +24,8 @@
             <tr>
                 <td>@contact.Name</td>
                 <td>@contact.Country</td>
+                <td><button @onclick="@(() => EditContact(contact.Id))"><i class="oi oi-pencil"></i></button></td>
+                <td><button @onclick="@(() => RemoveContact(contact.Id))"><i class="oi oi-trash"></i></button></td>
             </tr>
         }
     </tbody>
@@ -27,50 +33,9 @@
 
 @code {
 
-    public class Contact
-    {
-        public string Name { get; set; }
-        public string Country { get; set; }
-    }
-
-    public class ContactService
-    {
-        public List<Contact> contacts;
-
-        public ContactService()
-        {
-            contacts = new List<Contact>()
-{
-            new Contact
-            {
-                Name = "Alfreds Futterkiste",
-                Country = "Germany",
-            },
-            new Contact
-            {
-                Name = "Berglunds snabbkop",
-                Country = "Sweden",
-            },
-            new Contact
-            {
-                Name = "Island Trading",
-                Country = "UK",
-            },
-            new Contact
-            {
-                Name = "Koniglich Essen",
-                Country = "Germany",
-            }
-        };
-        }
-
-    }
-
     bool IsSearching => !(currentSearchCts == null);
 
     CancellationTokenSource currentSearchCts;
-
-    public ContactService contactService { get; set; }
 
     private string _searchQuery;
 
@@ -85,13 +50,12 @@
         }
     }
 
-    private List<Contact> contacts;
+    private List<BlazorDemo.Dtos.Contact> contacts;
 
     protected override async Task OnInitializedAsync()
     {
         await Task.Run(() =>
         {
-            contactService = new ContactService();
             GetContacts();
         });
     }
@@ -99,10 +63,22 @@
     public void GetContacts()
     {
         Console.WriteLine("GetContacts is Called");
-        contacts = contactService.contacts;
+        contacts = contactService.Contacts;
     }
 
-    public void GetClass() { }
+    public void EditContact(int id)
+    {
+        Console.WriteLine($"EditContact is Called with {id}");
+        navigationManager.NavigateTo($"Contacts/{id}");
+
+    }
+
+    public void RemoveContact(int id)
+    {
+        Console.WriteLine($"RemoveContact is Called with {id}");
+        contactService.Contacts.RemoveAll(c => c.Id == id);
+        StateHasChanged();
+    }
 
     public async Task SearchAsync(string input)
     {
@@ -114,7 +90,8 @@
 
             var searchToken = currentSearchCts.Token;
 
-            await Task.Factory.StartNew(async(st)=>{
+            await Task.Factory.StartNew(async (st) =>
+            {
 
                 await Task.Delay(500);
 
@@ -130,12 +107,12 @@
                 }
                 else
                 {
-                    contacts = contactService.contacts.Where(c => c.Name.StartsWith(input)).ToList();
+                    contacts = contactService.Contacts.Where(c => c.Name.StartsWith(input)).ToList();
                 }
 
                 currentSearchCts = null;
 
-            },searchToken).Unwrap();
+            }, searchToken).Unwrap();
 
             StateHasChanged();
         }
