@@ -1,0 +1,19 @@
+﻿<h3>CreateContact</h3>
+
+<EditForm Model="@CreateContactModel" OnValidSubmit="@OnValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <InputText id="name" @bind-Value="CreateContactModel.Name" />
+    <InputText id="country" @bind-Value="CreateContactModel.Country" />
+    <InputText id="address" @bind-Value="CreateContactModel.Address" />
+    <InputText id="phoneNumber" @bind-Value="CreateContactModel.PhoneNumber" />
+    <button type="submit">Submit</button>
+</EditForm>
+@code {
+    [Parameter]
+    public CreateContactModel CreateContactModel { get; set; }
+
+    [Parameter]
+    public EventCallback<EditContext> OnValidSubmit { get; set; }
+
+}

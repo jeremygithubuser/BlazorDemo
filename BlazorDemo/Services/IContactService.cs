@@ -5,6 +5,8 @@ namespace BlazorDemo.Services
 {
     public interface IContactService
     {
-        public List<Contact> Contacts { get; set; }
+        public List<ContactModel> Contacts { get; set; }
+
+        public void CreateContact(CreateContactModel createContactModel);
     }
 }

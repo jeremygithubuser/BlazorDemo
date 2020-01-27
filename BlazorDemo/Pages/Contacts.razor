@@ -8,29 +8,42 @@
     <input type="text" id="myInput" class="search" @bind="@SearchQuery" @bind:event="oninput" placeholder="Search for contacts..">
 </div>
 
+@if (contacts == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
 
-<table id="myTable" class="table table-striped">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Country</th>
-            <th>Edit</th>
-            <th>Remove</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var contact in contacts)
-        {
+    <table id="myTable" class="table table-striped">
+        <thead>
             <tr>
-                <td>@contact.Name</td>
-                <td>@contact.Country</td>
-                <td><button @onclick="@(() => EditContact(contact.Id))"><i class="oi oi-pencil"></i></button></td>
-                <td><button @onclick="@(() => RemoveContact(contact.Id))"><i class="oi oi-trash"></i></button></td>
+                <th>Name</th>
+                <th>Country</th>
+                <th>Edit</th>
+                <th>Remove</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var contact in contacts)
+            {
+                <tr>
+                    <td>@contact.Name</td>
+                    <td>@contact.Country</td>
+                    <td><button @onclick="@(() => EditContact(contact.Id))"><i class="oi oi-pencil"></i></button></td>
+                    <td><button @onclick="@(() => RemoveContact(contact.Id))"><i class="oi oi-trash"></i></button></td>
+                </tr>
+            }
+            <tr>
+                <td colspan="3"></td>
+                <td><button @onclick="@(() => AddContact())"><i class="oi oi-plus"></i></button></td>
+            </tr>
+        </tbody>
+    </table>
 
+    <CreateContactForm CreateContactModel="@CreateContactModel" OnValidSubmit="@CreateContact"></CreateContactForm>
+    
+}
 @code {
 
     bool IsSearching => !(currentSearchCts == null);
@@ -50,10 +63,13 @@
         }
     }
 
-    private List<BlazorDemo.Dtos.Contact> contacts;
+    public CreateContactModel CreateContactModel { get; set; }
+
+    private List<ContactModel> contacts;
 
     protected override async Task OnInitializedAsync()
     {
+        CreateContactModel = new CreateContactModel();
         await Task.Run(() =>
         {
             GetContacts();
@@ -66,18 +82,30 @@
         contacts = contactService.Contacts;
     }
 
-    public void EditContact(int id)
+    public void EditContact(Guid id)
     {
         Console.WriteLine($"EditContact is Called with {id}");
         navigationManager.NavigateTo($"Contacts/{id}");
 
     }
 
-    public void RemoveContact(int id)
+    public void RemoveContact(Guid id)
     {
         Console.WriteLine($"RemoveContact is Called with {id}");
         contactService.Contacts.RemoveAll(c => c.Id == id);
         StateHasChanged();
+    }
+
+    public void CreateContact()
+    {
+        contactService.CreateContact(CreateContactModel);
+        CreateContactModel = new CreateContactModel();
+        StateHasChanged();
+    }
+
+    public void AddContact()
+    {
+
     }
 
     public async Task SearchAsync(string input)
