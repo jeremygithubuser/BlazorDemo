@@ -3,7 +3,7 @@
 <EditForm Model="@CreateContactModel" OnValidSubmit="@OnValidSubmit">
     <DataAnnotationsValidator />
     <ValidationSummary />
-    <InputText id="name" @bind-Value="CreateContactModel.Name" />
+    <InputText id="name" @bind-Value="CreateContactModel.Name" /><ValidationMessage For="@(()=>CreateContactModel.Name)" />
     <InputText id="country" @bind-Value="CreateContactModel.Country" />
     <InputText id="address" @bind-Value="CreateContactModel.Address" />
     <InputText id="phoneNumber" @bind-Value="CreateContactModel.PhoneNumber" />

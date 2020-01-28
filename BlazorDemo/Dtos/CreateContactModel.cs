@@ -10,7 +10,8 @@ namespace BlazorDemo.Dtos
         public string Country { get; set; }
         [Required]
         public string Address { get; set; }
-        [Phone]
+        [Required]
+        [RegularExpression(@"^\d{3}-\d{3}-\d{4}$", ErrorMessage = "The phone number should be in format xxx-xxx-xxxx")]
         public string PhoneNumber { get; set; }
     }
 }
