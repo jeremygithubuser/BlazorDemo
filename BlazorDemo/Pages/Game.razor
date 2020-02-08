@@ -1,0 +1,45 @@
+﻿@page "/game"
+<h3>Game</h3>
+<td><button @onclick="@(() => ChangeCard())"><i class="oi oi-pencil"></i></button></td>
+@*<svg width="100" height="100">
+    <circle cx="50" cy="50" r="@Rayon" stroke="green" stroke-width="4" fill="yellow" />
+</svg>
+
+<div class="slidecontainer">
+    <input type="range" min="1" max="100" @bind="@Rayon" class="slider" id="myRange">
+</div>*@
+
+<svg height="1000" width="100%">
+    <use class="card" href="@CardId" x="-25" y="250"></use>
+</svg>
+
+
+
+@code {
+
+
+    public int Rayon { get; set; }
+
+    public string CardId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        await Task.Run(() =>
+        {
+            Rayon = 40;
+            CardId = $"svg/svg-cards.svg#3_club";
+             //StateHasChanged();
+        });
+    }
+
+
+    //OnAfterRenderAsync
+
+     public void ChangeCard()
+    {
+        CardId = $"svg/svg-cards.svg#queen_heart";
+        StateHasChanged();
+    }
+
+}

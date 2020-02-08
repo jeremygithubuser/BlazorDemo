@@ -4,4 +4,18 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Include="wwwroot\svg\cards.svg" />
+    <None Include="wwwroot\svg\svg-cards.svg" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="wwwroot\svg\cards.svg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\svg\svg-cards.svg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>
