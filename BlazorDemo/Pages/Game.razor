@@ -1,17 +1,7 @@
 ﻿@page "/game"
 <h3>Game</h3>
 <td><button @onclick="@(() => ChangeCard())"><i class="oi oi-pencil"></i></button></td>
-@*<svg width="100" height="100">
-        <circle cx="50" cy="50" r="@Rayon" stroke="green" stroke-width="4" fill="yellow" />
-    </svg>
 
-    <div class="slidecontainer">
-        <input type="range" min="1" max="100" @bind="@Rayon" class="slider" id="myRange">
-    </div>
-
-    <svg height="100%" width="100%" viewBox="0,0,1000,1000">
-        <use class="card" href="@CardId" x="-25" y="250"></use>
-    </svg>*@
 
 <svg height="1000" width="1000">
     @foreach (var gc in GameComponents)
@@ -23,9 +13,6 @@
 
 @code {
 
-
-    public int Rayon { get; set; }
-
     public string CardId { get; set; }
 
     public List<GameComponent> GameComponents { get; set; }
@@ -36,7 +23,6 @@
 
         await Task.Run(() =>
         {
-            Rayon = 10;
             CardId = $"svg/svg-cards.svg#3_club";
 
             GameComponents.AddRange(new List<GameComponent>()
@@ -80,9 +66,6 @@
         //StateHasChanged();
         });
     }
-
-
-    //OnAfterRenderAsync
 
     public void ChangeCard()
     {

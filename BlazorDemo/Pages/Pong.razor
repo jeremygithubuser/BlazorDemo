@@ -1,0 +1,60 @@
+﻿@page "/pong"
+<h3>Pong</h3>
+
+
+<svg height="1000" width="1000">
+
+    @foreach (var gc in GameComponents)
+    {
+        <SvgComponent GameComponent="@gc" />
+    }
+
+</svg>
+
+
+@code {
+    public List<GameComponent> GameComponents { get; set; }
+
+    public double Width { get; set; }
+
+    public double Height { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        Width = 1000;
+
+        Height = 1000;
+
+
+        GameComponents = new List<GameComponent>();
+
+        await Task.Run(() =>
+        {
+            GameComponents.AddRange(new List<GameComponent>()
+            {
+                new Rectangle()
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "BackGround",
+                    Height = 1000,
+                    Width = 1000,
+                    X=0,
+                    Y=0,
+                    Fill="#E3E8E6"
+                },
+                //new Line()
+                //{
+                //    Id = Guid.NewGuid(),
+                //    Height = 200,
+                //    Width = 100,
+                //    X=350,
+                //    Y=110,
+                //    Fill="red"
+                //}
+             });
+
+            //StateHasChanged();
+        });
+    }
+}
