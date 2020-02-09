@@ -1,0 +1,16 @@
+﻿@switch (GameComponent)
+{
+    case Rectangle rectangle:
+        <SvgRectangle Rectangle="@rectangle" />
+        break;
+    case Circle circle:
+        <SvgCircle Circle="@circle" />
+        break;
+    default:
+        break;
+}
+
+@code {
+    [Parameter]
+    public GameComponent GameComponent { get; set; }
+}
