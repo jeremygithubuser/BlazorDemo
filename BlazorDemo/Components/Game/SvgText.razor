@@ -1,0 +1,6 @@
+﻿<h3>SvgText</h3>
+<text x="@Text.X" y="@Text.Y" fill="@Text.Fill" text-anchor="@Text.TextAnchor" font-familly="@Text.FontFamilly" font-size="@Text.FontSize">@Text.Content</text>
+@code {
+    [Parameter]
+    public Text Text { get; set; }
+}

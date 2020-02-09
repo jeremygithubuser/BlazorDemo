@@ -20,6 +20,7 @@
     public double Height { get; set; }
 
     public int ScorePlayerLeft { get; set; }
+    public int ScorePlayerRight { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -27,9 +28,6 @@
         Width = 1000;
 
         Height = 600;
-
-
-
 
         GameComponents = new List<GameComponent>();
 
@@ -85,6 +83,31 @@
                     Cy=Height/2,
                     R=Width/40,
                     Fill="#7f7f7f"
+
+                },
+                new Text()
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "ScorePlayerLeft",
+                    X = Width/2-20,
+                    Y=50,
+                    FontSize=50,
+                    FontFamilly="Menlo, sans-serif",
+                    Fill="#fff",
+                    TextAnchor="end",
+                    Content= ScorePlayerLeft.ToString()
+                },
+                 new Text()
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "ScorePlayerRight",
+                    X = Width/2+20,
+                    Y=50,
+                    FontSize=50,
+                    FontFamilly="Menlo, sans-serif",
+                    Fill="#fff",
+                    TextAnchor="start",
+                    Content= ScorePlayerRight.ToString()
 
                 }
 
