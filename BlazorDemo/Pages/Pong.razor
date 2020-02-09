@@ -19,12 +19,16 @@
 
     public double Height { get; set; }
 
+    public int ScorePlayerLeft { get; set; }
+
     protected override async Task OnInitializedAsync()
     {
 
         Width = 1000;
 
-        Height = 1000;
+        Height = 600;
+
+
 
 
         GameComponents = new List<GameComponent>();
@@ -37,24 +41,56 @@
                 {
                     Id = Guid.NewGuid(),
                     Name = "BackGround",
-                    Height = 1000,
-                    Width = 1000,
+                    Height = Height,
+                    Width = Width,
                     X=0,
                     Y=0,
                     Fill="#E3E8E6"
                 },
-                //new Line()
-                //{
-                //    Id = Guid.NewGuid(),
-                //    Height = 200,
-                //    Width = 100,
-                //    X=350,
-                //    Y=110,
-                //    Fill="red"
-                //}
-             });
+                new Line()
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Net",
+                    X1 = Width/2,
+                    Y1 = 0,
+                    X2= Width/2,
+                    Y2=Height,
+                    Style="stroke:#fff;stroke-width:5;stroke-dasharray:5,5"
+                },
+                new Rectangle()
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "PaddleLeft",
+                    Height = Height/5,
+                    Width = Width/25,
+                    X=0,
+                    Y=2*Height/5,
+                    Fill="#00ff99"
+                },
+                new Rectangle()
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "PaddleRight",
+                    Height = Height/5,
+                    Width = Width/25,
+                    X=Width-(Width/25),
+                    Y=2*Height/5,
+                    Fill="#ff0066"
+                },
+                new Circle()
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Ball",
+                    Cx = Width/2,
+                    Cy=Height/2,
+                    R=Width/40,
+                    Fill="#7f7f7f"
 
-            //StateHasChanged();
-        });
+                }
+
+            });
+
+        //StateHasChanged();
+    });
     }
 }
