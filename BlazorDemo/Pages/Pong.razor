@@ -1,6 +1,6 @@
 ﻿@page "/pong"
 <h3>Pong</h3>
-
+<button @onclick="@(() => Start())"><i class="oi oi-pencil"></i></button>
 
 <svg height="1000" width="1000">
 
@@ -13,6 +13,11 @@
 
 
 @code {
+
+    public event MoveBallEventHandler MoveBallEvent;
+
+    public delegate Task MoveBallEventHandler(object sender, EventArgs e);
+
     public List<GameComponent> GameComponents { get; set; }
 
     public double Width { get; set; }
@@ -20,10 +25,33 @@
     public double Height { get; set; }
 
     public int ScorePlayerLeft { get; set; }
+
     public int ScorePlayerRight { get; set; }
+
+    public Rectangle BackGround { get; set; }
+
+    public Line Net { get; set; }
+
+    public Rectangle PaddleLeft { get; set; }
+
+    public Rectangle PaddleRight { get; set; }
+
+    public Circle Ball { get; set; }
+
+    public Text ScorePlayerLeftText { get; set; }
+
+    public Text ScorePlayerRightText { get; set; }
+
+    public double Vx = 0.6;
+
+    public double Vy = 0.4;
+
+    public double distance = 10;
 
     protected override async Task OnInitializedAsync()
     {
+
+        MoveBallEvent += MoveAsync;
 
         Width = 1000;
 
@@ -31,89 +59,130 @@
 
         GameComponents = new List<GameComponent>();
 
+        BackGround = new Rectangle()
+        {
+            Id = Guid.NewGuid(),
+            Name = "BackGround",
+            Height = Height,
+            Width = Width,
+            X = 0,
+            Y = 0,
+            Fill = "#E3E8E6"
+        };
+
+        Net = new Line()
+        {
+            Id = Guid.NewGuid(),
+            Name = "Net",
+            X1 = BackGround.Width / 2,
+            Y1 = 0,
+            X2 = BackGround.Width / 2,
+            Y2 = BackGround.Height,
+            Style = "stroke:#fff;stroke-width:5;stroke-dasharray:5,5"
+        };
+
+        PaddleLeft = new Rectangle()
+        {
+            Id = Guid.NewGuid(),
+            Name = "PaddleLeft",
+            Height = BackGround.Height / 5,
+            Width = BackGround.Width / 25,
+            X = 0,
+            Y = 2 * BackGround.Height / 5,
+            Fill = "#00ff99"
+        };
+
+        PaddleRight = new Rectangle()
+        {
+            Id = Guid.NewGuid(),
+            Name = "PaddleRight",
+            Height = BackGround.Height / 5,
+            Width = BackGround.Width / 25,
+            X = BackGround.Width - (Width / 25),
+            Y = 2 * BackGround.Height / 5,
+            Fill = "#ff0066"
+        };
+
+        Ball = new Circle()
+        {
+            Id = Guid.NewGuid(),
+            Name = "Ball",
+            Cx = BackGround.Width / 2,
+            Cy = BackGround.Height / 2,
+            R = BackGround.Width / 40,
+            Fill = "#7f7f7f"
+
+        };
+
+        ScorePlayerLeftText = new Text()
+        {
+            Id = Guid.NewGuid(),
+            Name = "ScorePlayerLeftText",
+            X = BackGround.Width / 2 - 20,
+            Y = 50,
+            FontSize = 50,
+            FontFamilly = "Menlo, sans-serif",
+            Fill = "#fff",
+            TextAnchor = "end",
+            Content = ScorePlayerLeft.ToString()
+        };
+
+        ScorePlayerRightText = new Text()
+        {
+            Id = Guid.NewGuid(),
+            Name = "ScorePlayerRightText",
+            X = BackGround.Width / 2 + 20,
+            Y = 50,
+            FontSize = 50,
+            FontFamilly = "Menlo, sans-serif",
+            Fill = "#fff",
+            TextAnchor = "start",
+            Content = ScorePlayerRight.ToString()
+
+        };
+
         await Task.Run(() =>
         {
             GameComponents.AddRange(new List<GameComponent>()
             {
-                new Rectangle()
-                {
-                    Id = Guid.NewGuid(),
-                    Name = "BackGround",
-                    Height = Height,
-                    Width = Width,
-                    X=0,
-                    Y=0,
-                    Fill="#E3E8E6"
-                },
-                new Line()
-                {
-                    Id = Guid.NewGuid(),
-                    Name = "Net",
-                    X1 = Width/2,
-                    Y1 = 0,
-                    X2= Width/2,
-                    Y2=Height,
-                    Style="stroke:#fff;stroke-width:5;stroke-dasharray:5,5"
-                },
-                new Rectangle()
-                {
-                    Id = Guid.NewGuid(),
-                    Name = "PaddleLeft",
-                    Height = Height/5,
-                    Width = Width/25,
-                    X=0,
-                    Y=2*Height/5,
-                    Fill="#00ff99"
-                },
-                new Rectangle()
-                {
-                    Id = Guid.NewGuid(),
-                    Name = "PaddleRight",
-                    Height = Height/5,
-                    Width = Width/25,
-                    X=Width-(Width/25),
-                    Y=2*Height/5,
-                    Fill="#ff0066"
-                },
-                new Circle()
-                {
-                    Id = Guid.NewGuid(),
-                    Name = "Ball",
-                    Cx = Width/2,
-                    Cy=Height/2,
-                    R=Width/40,
-                    Fill="#7f7f7f"
+                BackGround,
+                Net,
+                PaddleLeft,
+                PaddleRight,
+                Ball,
+                ScorePlayerLeftText,
+                ScorePlayerRightText
 
-                },
-                new Text()
-                {
-                    Id = Guid.NewGuid(),
-                    Name = "ScorePlayerLeft",
-                    X = Width/2-20,
-                    Y=50,
-                    FontSize=50,
-                    FontFamilly="Menlo, sans-serif",
-                    Fill="#fff",
-                    TextAnchor="end",
-                    Content= ScorePlayerLeft.ToString()
-                },
-                 new Text()
-                {
-                    Id = Guid.NewGuid(),
-                    Name = "ScorePlayerRight",
-                    X = Width/2+20,
-                    Y=50,
-                    FontSize=50,
-                    FontFamilly="Menlo, sans-serif",
-                    Fill="#fff",
-                    TextAnchor="start",
-                    Content= ScorePlayerRight.ToString()
+                                });
 
-                }
+        });
+    }
 
-            });
+    public void Start()
+    {
+        MoveBallEvent?.Invoke(this, new EventArgs());
+    }
 
-        //StateHasChanged();
-    });
+    public async Task MoveAsync(object sender, EventArgs e)
+    {
+        if ((Vy < 0 && Ball.Cy <= 0) || (Vy > 0 && Ball.Cy >= BackGround.Height))
+        {
+            Vy = -Vy;
+        }
+
+        if ((Vx < 0 && Ball.Cx <= 0) || (Vx > 0 && Ball.Cx >= BackGround.Width))
+        {
+            Vx = -Vx;
+        }
+
+        Ball.Cx = Ball.Cx + Vx * distance;
+
+        Ball.Cy = Ball.Cy + Vy * distance;
+
+        StateHasChanged();
+
+        await Task.Delay(10);
+
+        MoveBallEvent?.Invoke(this, new EventArgs());
     }
 }
