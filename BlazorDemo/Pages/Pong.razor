@@ -46,7 +46,7 @@
 
     public double Vy = 0.4;
 
-    public double distance = 10;
+    public double distance = 15;
 
     protected override async Task OnInitializedAsync()
     {
@@ -109,8 +109,8 @@
             Name = "Ball",
             Cx = BackGround.Width / 2,
             Cy = BackGround.Height / 2,
-            R = BackGround.Width / 40,
-            Fill = "#7f7f7f"
+            R = BackGround.Width / 50,
+            Fill = "#0000A0"
 
         };
 
@@ -181,7 +181,7 @@
 
         StateHasChanged();
 
-        await Task.Delay(10);
+        await Task.Delay(1);
 
         MoveBallEvent?.Invoke(this, new EventArgs());
     }
