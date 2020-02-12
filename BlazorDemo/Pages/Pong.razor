@@ -10,13 +10,26 @@
     }
 
 </svg>
-
+<button @onmousedown="@(() => OnMoveUpLeftPaddle())" @onmouseup="@(() => OnStopLeftPaddle())"><i class="oi oi-arrow-thick-top"></i></button>
+<button @onmousedown="@(() => OnMoveDownLeftPaddle())" @onmouseup="@(() => OnStopLeftPaddle())"><i class="oi oi-arrow-thick-bottom"></i></button>
 
 @code {
 
     public event MoveBallEventHandler MoveBallEvent;
 
     public delegate Task MoveBallEventHandler(object sender, EventArgs e);
+
+    public event MoveUpLeftPaddleEventHandler MoveUpLeftPaddleEvent;
+
+    public delegate Task MoveUpLeftPaddleEventHandler(object sender, EventArgs e);
+
+    public event MoveDownLeftPaddleEventHandler MoveDownLeftPaddleEvent;
+
+    public delegate Task MoveDownLeftPaddleEventHandler(object sender, EventArgs e);
+
+    public event StopLeftPaddleEventHandler StopLeftPaddleEvent;
+
+    public delegate Task StopLeftPaddleEventHandler(object sender, EventArgs e);
 
     public List<GameComponent> GameComponents { get; set; }
 
@@ -36,6 +49,10 @@
 
     public Rectangle PaddleRight { get; set; }
 
+    public CancellationTokenSource CancelMoveLeftPaddleTokenSource { get; set; }
+
+    public CancellationToken CancelMoveLeftPaddleToken { get; set; }
+
     public Circle Ball { get; set; }
 
     public Text ScorePlayerLeftText { get; set; }
@@ -51,7 +68,13 @@
     protected override async Task OnInitializedAsync()
     {
 
-        MoveBallEvent += MoveAsync;
+        MoveBallEvent += OnMoveBallAsync;
+
+        MoveUpLeftPaddleEvent += OnMoveUpLeftPaddleAsync;
+
+        MoveDownLeftPaddleEvent += OnMoveDownLeftPaddleAsync;
+
+        StopLeftPaddleEvent += OnStopLeftPaddleAsync;
 
         Width = 1000;
 
@@ -163,7 +186,7 @@
         MoveBallEvent?.Invoke(this, new EventArgs());
     }
 
-    public async Task MoveAsync(object sender, EventArgs e)
+    public async Task OnMoveBallAsync(object sender, EventArgs e)
     {
         if ((Vy < 0 && Ball.Cy <= 0) || (Vy > 0 && Ball.Cy >= BackGround.Height))
         {
@@ -185,4 +208,50 @@
 
         MoveBallEvent?.Invoke(this, new EventArgs());
     }
+
+    public void OnMoveUpLeftPaddle()
+    {
+        CancelMoveLeftPaddleTokenSource = new CancellationTokenSource();
+        CancelMoveLeftPaddleToken = CancelMoveLeftPaddleTokenSource.Token;
+        MoveUpLeftPaddleEvent?.Invoke(this, new EventArgs());
+    }
+
+    public async Task OnMoveUpLeftPaddleAsync(object sender, EventArgs e)
+    {
+        while (PaddleLeft.Y >= 0 && CancelMoveLeftPaddleToken.IsCancellationRequested==false)
+        {
+            PaddleLeft.Y -= 5;
+            StateHasChanged();
+            await Task.Delay(1);
+        }
+    }
+
+    public void OnMoveDownLeftPaddle()
+    {
+        CancelMoveLeftPaddleTokenSource = new CancellationTokenSource();
+        CancelMoveLeftPaddleToken = CancelMoveLeftPaddleTokenSource.Token;
+        MoveDownLeftPaddleEvent?.Invoke(this, new EventArgs());
+    }
+
+    public async Task OnMoveDownLeftPaddleAsync(object sender, EventArgs e)
+    {
+        while (PaddleLeft.Y <= (BackGround.Height - PaddleLeft.Height ) && CancelMoveLeftPaddleToken.IsCancellationRequested==false)
+        {
+            PaddleLeft.Y += 5;
+            StateHasChanged();
+            await Task.Delay(1);
+        }
+    }
+
+    public void OnStopLeftPaddle()
+    {
+        StopLeftPaddleEvent?.Invoke(this, new EventArgs());
+    }
+
+    public async Task OnStopLeftPaddleAsync(object sender, EventArgs e)
+    {
+        CancelMoveLeftPaddleTokenSource.Cancel();
+        await Task.Delay(1);
+    }
+
 }
