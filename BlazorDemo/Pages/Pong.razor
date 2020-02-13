@@ -17,7 +17,7 @@
 
     public event MoveBallEventHandler MoveBallEvent;
 
-    public delegate Task MoveBallEventHandler(object sender, EventArgs e);
+    public delegate Task MoveBallEventHandler(object sender, MoveBallEventArgs e);
 
     public event MoveUpLeftPaddleEventHandler MoveUpLeftPaddleEvent;
 
@@ -30,6 +30,14 @@
     public event StopLeftPaddleEventHandler StopLeftPaddleEvent;
 
     public delegate Task StopLeftPaddleEventHandler(object sender, EventArgs e);
+
+    public event MoveUpRightPaddleEventHandler MoveUpRightPaddleEvent;
+
+    public delegate Task MoveUpRightPaddleEventHandler(object sender, EventArgs e);
+
+    public event MoveDownRightPaddleEventHandler MoveDownRightPaddleEvent;
+
+    public delegate Task MoveDownRightPaddleEventHandler(object sender, EventArgs e);
 
     public List<GameComponent> GameComponents { get; set; }
 
@@ -53,6 +61,10 @@
 
     public CancellationToken CancelMoveLeftPaddleToken { get; set; }
 
+    public CancellationTokenSource CancelMoveRightPaddleTokenSource { get; set; }
+
+    public CancellationToken CancelMoveRightPaddleToken { get; set; }
+
     public Circle Ball { get; set; }
 
     public Text ScorePlayerLeftText { get; set; }
@@ -68,13 +80,19 @@
     protected override async Task OnInitializedAsync()
     {
 
-        MoveBallEvent += OnMoveBallAsync;
+        MoveBallEvent += UpdateBallPositionAsync;
+
+        MoveBallEvent += UpdateStrategyAsync;
 
         MoveUpLeftPaddleEvent += OnMoveUpLeftPaddleAsync;
 
         MoveDownLeftPaddleEvent += OnMoveDownLeftPaddleAsync;
 
         StopLeftPaddleEvent += OnStopLeftPaddleAsync;
+
+        MoveUpRightPaddleEvent += OnMoveUpRightPaddleAsync;
+
+        MoveDownRightPaddleEvent += OnMoveDownRightPaddleAsync;
 
         Width = 1000;
 
@@ -183,10 +201,10 @@
 
     public void Start()
     {
-        MoveBallEvent?.Invoke(this, new EventArgs());
+        MoveBallEvent?.Invoke(this, new MoveBallEventArgs(Ball.Cx,Ball.Cy,Ball.Cx,Ball.Cy));
     }
 
-    public async Task OnMoveBallAsync(object sender, EventArgs e)
+    public async Task UpdateBallPositionAsync(object sender, MoveBallEventArgs e)
     {
         if ((Vy < 0 && Ball.Cy <= 0) || (Vy > 0 && Ball.Cy >= BackGround.Height))
         {
@@ -198,6 +216,10 @@
             Vx = -Vx;
         }
 
+        var _cx = Ball.Cx;
+
+        var _cy = Ball.Cy;
+
         Ball.Cx = Ball.Cx + Vx * distance;
 
         Ball.Cy = Ball.Cy + Vy * distance;
@@ -206,7 +228,7 @@
 
         await Task.Delay(1);
 
-        MoveBallEvent?.Invoke(this, new EventArgs());
+        MoveBallEvent?.Invoke(this, new MoveBallEventArgs(_cx,_cy,Ball.Cx,Ball.Cy));
     }
 
     public void OnMoveUpLeftPaddle()
@@ -252,6 +274,56 @@
     {
         CancelMoveLeftPaddleTokenSource.Cancel();
         await Task.Delay(1);
+    }
+
+    public async Task UpdateStrategyAsync(object sender, MoveBallEventArgs e)
+    {
+        if (e._CY < e.CY)
+        {
+            MoveDownRightPaddleEvent?.Invoke(this, new EventArgs());
+        }
+
+        if (e._CY > e.CY)
+        {
+            MoveUpRightPaddleEvent?.Invoke(this, new EventArgs());
+        }
+    }
+
+    public async Task OnMoveUpRightPaddleAsync(object sender, EventArgs e)
+    {
+        if (PaddleRight.Y >= 0)
+        {
+            PaddleRight.Y -= 5;
+            StateHasChanged();
+            await Task.Delay(1);
+        }
+    }
+
+    public async Task OnMoveDownRightPaddleAsync(object sender, EventArgs e)
+    {
+        while (PaddleRight.Y <= (BackGround.Height - PaddleRight.Height ))
+        {
+            PaddleRight.Y += 5;
+            StateHasChanged();
+            await Task.Delay(1);
+        }
+    }
+
+    public class MoveBallEventArgs : EventArgs
+    {
+        public double _CX { get; set; }
+        public double _CY { get; set; }
+
+        public double CX { get; set; }
+        public double CY { get; set; }
+
+        public MoveBallEventArgs(double _cx,double _cy,double cx,double cy)
+        {
+            _CX = -cx;
+            _CY = _cy;
+            CX = cx;
+            CY = cy;
+        }
     }
 
 }
